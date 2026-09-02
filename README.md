@@ -53,6 +53,23 @@ Loan-Approval-Prediction-System/
     └── index.html
 ```
 
+## Screenshots
+
+### Home
+![Home](screenshots/Home.png)
+
+### Prediction Form
+![Prediction Form](screenshots/Prediction-form.png)
+
+### Loan Approved
+![Loan Approved](screenshots/Loan-Approved.png)
+
+### Loan Rejected
+![Loan Rejected](screenshots/Loan-Reject.png)
+
+### About
+![About](screenshots/About.png)
+
 ## Installation
 
 Clone the repository
