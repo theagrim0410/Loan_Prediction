@@ -11,21 +11,20 @@ try:
 except ImportError:
     HAS_CORS = False
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__, static_folder="static", template_folder="templates")
 
 if HAS_CORS:
-    # index.html/script.js call http://127.0.0.1:5000/predict directly.
-    # If index.html is opened as a local file (file://) instead of being
-    # served by this Flask app, the browser treats that as a different
-    # origin, so CORS must be enabled for the request to succeed.
-    CORS(app)
+    cors_origins = os.environ.get("CORS_ORIGINS", "*")
+    CORS(app, resources={r"/*": {"origins": cors_origins}})
 
 # -------------------------------------------------------------------
-# Load saved artifacts (exactly as saved by the notebook, cell 47)
+# Load saved artifacts (exactly as saved by the notebook)
 # -------------------------------------------------------------------
-MODEL_PATH = os.path.join("model", "model.pkl")
-SCALER_PATH = os.path.join("model", "scaler.pkl")
-OHE_PATH = os.path.join("model", "ohe.pkl")
+MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
+SCALER_PATH = os.path.join(BASE_DIR, "model", "scaler.pkl")
+OHE_PATH = os.path.join(BASE_DIR, "model", "ohe.pkl")
 
 model = joblib.load(MODEL_PATH)
 scaler = joblib.load(SCALER_PATH)
@@ -162,6 +161,10 @@ def preprocess(data: dict) -> pd.DataFrame:
 def index():
     return render_template("index.html")
 
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "healthy", "model_loaded": model is not None}), 200
+
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
@@ -242,10 +245,11 @@ def predict():
             "error": str(e)
         }), 500
 
-import os
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    debug = os.environ.get("FLASK_DEBUG", "False").lower() in ["true", "1", "t"]
     app.run(
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", 5000)),
-        debug=True
+        port=port,
+        debug=debug
     )

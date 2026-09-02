@@ -705,6 +705,67 @@ input, select {
   transform: translateY(0);
 }
 
+/* ---------- Example Presets ---------- */
+.example-presets {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.preset-label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.preset-btn {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  font-family: var(--font-main);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.preset-btn.btn-strong {
+  color: var(--color-success);
+  border-color: rgba(22, 163, 74, 0.35);
+  background: rgba(22, 163, 74, 0.06);
+}
+
+.preset-btn.btn-strong:hover {
+  background: rgba(22, 163, 74, 0.15);
+  transform: translateY(-1px);
+}
+
+.preset-btn.btn-moderate {
+  color: var(--color-primary);
+  border-color: rgba(37, 99, 235, 0.35);
+  background: rgba(37, 99, 235, 0.06);
+}
+
+.preset-btn.btn-moderate:hover {
+  background: rgba(37, 99, 235, 0.15);
+  transform: translateY(-1px);
+}
+
+.preset-btn.btn-high-risk {
+  color: var(--color-danger);
+  border-color: rgba(220, 38, 38, 0.35);
+  background: rgba(220, 38, 38, 0.06);
+}
+
+.preset-btn.btn-high-risk:hover {
+  background: rgba(220, 38, 38, 0.15);
+  transform: translateY(-1px);
+}
+
 /* =========================================================
    RESPONSIVE
    ========================================================= */

@@ -177,18 +177,26 @@ function collectFormData() {
 // Show the loading spinner and disable the submit button
 function showLoading() {
   form.hidden = true;
+  form.style.display = 'none';
   resultCard.hidden = true;
+  resultCard.style.display = 'none';
   loadingState.hidden = false;
+  loadingState.style.display = 'flex';
   predictBtn.disabled = true;
 }
 
 // Hide loading spinner
 function hideLoading() {
   loadingState.hidden = true;
+  loadingState.style.display = 'none';
 }
 
 // Render the result card based on the prediction outcome
 function showResult(prediction, confidence) {
+  hideLoading();
+  form.hidden = true;
+  form.style.display = 'none';
+
   const approved = String(prediction).toLowerCase() === 'approved';
 
   resultIcon.className = `result-icon ${approved ? 'approved' : 'rejected'}`;
@@ -207,6 +215,7 @@ function showResult(prediction, confidence) {
     : `Based on the current details, the loan is likely to be rejected.${confidenceText}`;
 
   resultCard.hidden = false;
+  resultCard.style.display = 'flex';
   predictBtn.disabled = false;
 }
 
@@ -220,7 +229,8 @@ form.addEventListener('submit', async (e) => {
   showLoading();
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/predict', {
+    const apiUrl = (typeof window !== 'undefined' && window.API_URL) ? window.API_URL : '/predict';
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -239,9 +249,10 @@ form.addEventListener('submit', async (e) => {
     // Backend not reachable or returned an error — surface it clearly
     hideLoading();
     form.hidden = false;
+    form.style.display = '';
     predictBtn.disabled = false;
     alert(
-      'Could not reach the prediction server. Please make sure the Flask backend is running at http://127.0.0.1:5000/predict.'
+      'Could not reach the prediction server. Please make sure the Flask backend is running.'
     );
     console.error('Prediction request failed:', error);
   }
@@ -260,10 +271,106 @@ resetBtn.addEventListener('click', () => {
 // ---------- Try another application ----------
 tryAgainBtn.addEventListener('click', () => {
   resultCard.hidden = true;
+  resultCard.style.display = 'none';
+  loadingState.hidden = true;
+  loadingState.style.display = 'none';
   form.hidden = false;
+  form.style.display = '';
   form.reset();
   Object.keys(fieldRules).forEach((id) => {
     document.getElementById(id).classList.remove('invalid');
     document.getElementById(`err-${id}`).textContent = '';
+  });
+});
+
+// ---------- Example Application Profiles ----------
+const presetProfiles = {
+  strong: {
+    applicantIncome: 85000,
+    coapplicantIncome: 25000,
+    loanAmount: 200000,
+    loanTerm: 36,
+    creditScore: 780,
+    dtiRatio: 20,
+    age: 35,
+    gender: 'Male',
+    maritalStatus: 'Married',
+    education: 'Graduate',
+    employmentStatus: 'Salaried',
+    employerCategory: 'Government',
+    propertyArea: 'Urban',
+    loanPurpose: 'Home',
+    dependents: 1,
+    existingLoans: 0,
+    savings: 60000,
+    collateralValue: 250000,
+  },
+  moderate: {
+    applicantIncome: 45000,
+    coapplicantIncome: 10000,
+    loanAmount: 150000,
+    loanTerm: 48,
+    creditScore: 650,
+    dtiRatio: 38,
+    age: 29,
+    gender: 'Male',
+    maritalStatus: 'Single',
+    education: 'Graduate',
+    employmentStatus: 'Salaried',
+    employerCategory: 'Private',
+    propertyArea: 'Semiurban',
+    loanPurpose: 'Car',
+    dependents: 2,
+    existingLoans: 1,
+    savings: 15000,
+    collateralValue: 80000,
+  },
+  high_risk: {
+    applicantIncome: 1500,
+    coapplicantIncome: 0,
+    loanAmount: 400000,
+    loanTerm: 12,
+    creditScore: 340,
+    dtiRatio: 85,
+    age: 21,
+    gender: 'Female',
+    maritalStatus: 'Single',
+    education: 'Not Graduate',
+    employmentStatus: 'Unemployed',
+    employerCategory: 'Unemployed',
+    propertyArea: 'Rural',
+    loanPurpose: 'Personal',
+    dependents: 4,
+    existingLoans: 6,
+    savings: 500,
+    collateralValue: 0,
+  },
+};
+
+document.querySelectorAll('.preset-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const key = btn.getAttribute('data-preset');
+    const profile = presetProfiles[key];
+    if (!profile) return;
+
+    // Reset result view if active and show form
+    resultCard.hidden = true;
+    resultCard.style.display = 'none';
+    loadingState.hidden = true;
+    loadingState.style.display = 'none';
+    form.hidden = false;
+    form.style.display = '';
+
+    // Populate all form fields
+    Object.keys(profile).forEach((fieldId) => {
+      const input = document.getElementById(fieldId);
+      if (input) {
+        input.value = profile[fieldId];
+        validateField(fieldId);
+      }
+    });
+
+    // Smooth scroll to form card for quick review
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });

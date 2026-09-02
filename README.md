@@ -77,21 +77,27 @@ Open
 
 ```
 http://127.0.0.1:5000
+## Deployment
+
+### Deploying to Render / Heroku / Railway
+
+1. Push your repository to GitHub.
+2. Create a new **Web Service** on Render/Heroku/Railway connected to your GitHub repository.
+3. Configure settings:
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn app:app`
+   - **Python Version**: Python 3.11.x (configured via `runtime.txt`)
+4. Set Environment Variables (Optional):
+   - `PORT`: (automatically set by hosting platform)
+   - `FLASK_DEBUG`: `False`
+   - `CORS_ORIGINS`: `*`
+
+### Running with Production WSGI Server (Gunicorn)
+
+```bash
+gunicorn app:app
 ```
 
-## Future Improvements
-
-- XGBoost Model
-- Explainable AI
-- User Authentication
-- Database Integration
-- Cloud Deployment
-- Dashboard Analytics
-
-## Author
-
-- Adarsh Jaiswal
-- 
 ## License
 
 This project is developed for educational purposes.
