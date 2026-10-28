@@ -8,8 +8,10 @@ A Machine Learning based Loan Approval Prediction System built using Flask, HTML
 - Beautiful responsive UI
 - Real-time prediction using Machine Learning
 - Confidence score display
+- Animated prediction history page backed by SQLite
 - Form validation
 - Flask backend
+- SQLite storage for prediction history and dataset records
 
 ## Tech Stack
 
@@ -45,6 +47,9 @@ Loan-Approval-Prediction-System/
 ├── dataset/
 ├── model/
 ├── notebook/
+├── database/
+│   ├── db.py
+│   └── __init__.py
 ├── static/
 │   ├── style.css
 │   └── script.js
@@ -94,6 +99,22 @@ Open
 
 ```
 http://127.0.0.1:5000
+```
+
+## Database API
+
+The backend creates `database/loan_approval.sqlite3` automatically. The CSV is
+imported into SQLite the first time the dataset endpoint is used.
+
+- `GET /history?limit=50&offset=0` - recent prediction history
+- `DELETE /history` - clear prediction history
+- `GET /dataset?limit=50&offset=0&approval=Yes` - paginated dataset records
+- `GET /dataset/summary` - total, approved, and rejected dataset counts
+- `GET /health` - application and database status
+
+Each successful `POST /predict` stores the submitted fields, result, confidence,
+and UTC timestamp in the prediction history table.
+
 ## Deployment
 
 ### Deploying to Render / Heroku / Railway

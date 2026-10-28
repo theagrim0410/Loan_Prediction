@@ -125,6 +125,190 @@ input, select {
   margin-right: auto;
 }
 
+/* ---------- Prediction History ---------- */
+.history-section {
+  padding: 112px 0;
+  background: linear-gradient(180deg, #F8FAFC 0%, #EFF4FF 100%);
+}
+
+.history-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.history-heading .section-heading {
+  margin-bottom: 8px;
+}
+
+.history-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-danger {
+  color: var(--color-danger);
+  background: var(--color-white);
+  border: 1.5px solid rgba(220, 38, 38, 0.25);
+}
+
+.btn-danger:hover {
+  color: var(--color-white);
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.history-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.history-stat-card {
+  padding: 20px 24px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  animation: fadeInUp 0.55s ease both;
+}
+
+.history-stat-card:nth-child(2) { animation-delay: 0.08s; }
+.history-stat-card:nth-child(3) { animation-delay: 0.16s; }
+
+.history-stat-label {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.history-stat-card strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-secondary);
+  font-size: 1.75rem;
+}
+
+.approved-stat strong { color: var(--color-success); }
+.rejected-stat strong { color: var(--color-danger); }
+
+.history-card {
+  min-height: 260px;
+  overflow: hidden;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  animation: fadeInUp 0.7s ease both;
+}
+
+.history-loading,
+.history-empty {
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  padding: 36px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.history-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 4px;
+  color: var(--color-primary);
+  background: rgba(37, 99, 235, 0.08);
+  border-radius: 50%;
+  font-size: 1.8rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.history-empty h3 {
+  color: var(--color-secondary);
+}
+
+.history-empty .btn {
+  margin-top: 12px;
+}
+
+.history-error {
+  padding: 32px;
+  color: var(--color-danger);
+  text-align: center;
+}
+
+.history-table-wrap {
+  overflow-x: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.history-table th,
+.history-table td {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+  font-size: 0.86rem;
+}
+
+.history-table th {
+  color: var(--color-text-muted);
+  background: #F8FAFC;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.history-table tbody tr {
+  animation: fadeIn 0.45s ease both;
+  transition: background var(--transition);
+}
+
+.history-table tbody tr:hover {
+  background: #F8FAFC;
+}
+
+.history-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.history-badge {
+  display: inline-flex;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.history-badge.approved {
+  color: var(--color-success);
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.history-badge.rejected {
+  color: var(--color-danger);
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.history-details {
+  color: var(--color-text-muted);
+}
+
 /* ---------- Buttons ---------- */
 .btn {
   position: relative;
@@ -838,6 +1022,20 @@ input, select {
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .history-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .history-actions,
+  .history-actions .btn {
+    width: 100%;
+  }
+
+  .history-actions .btn {
+    flex: 1;
+  }
 }
 
 @media (max-width: 560px) {
@@ -847,6 +1045,19 @@ input, select {
 
   .hero-stats {
     gap: 16px;
+  }
+
+  .history-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .history-stat-card {
+    padding: 16px 20px;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 14px 16px;
   }
 }
 

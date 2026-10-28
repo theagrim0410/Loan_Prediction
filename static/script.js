@@ -72,6 +72,16 @@ const resultIcon = document.getElementById('resultIcon');
 const resultTitle = document.getElementById('resultTitle');
 const resultText = document.getElementById('resultText');
 const tryAgainBtn = document.getElementById('tryAgainBtn');
+const historyLoading = document.getElementById('historyLoading');
+const historyEmpty = document.getElementById('historyEmpty');
+const historyError = document.getElementById('historyError');
+const historyTableWrap = document.getElementById('historyTableWrap');
+const historyTableBody = document.getElementById('historyTableBody');
+const historyTotal = document.getElementById('historyTotal');
+const historyApproved = document.getElementById('historyApproved');
+const historyRejected = document.getElementById('historyRejected');
+const refreshHistoryBtn = document.getElementById('refreshHistoryBtn');
+const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
 // Field configuration: id -> validation rule
 const fieldRules = {
@@ -238,25 +248,115 @@ form.addEventListener('submit', async (e) => {
       body: JSON.stringify(payload),
     });
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error(`Server responded with status ${response.status}`);
+      throw new Error(data.error || `Server responded with status ${response.status}`);
     }
 
-    const data = await response.json();
     hideLoading();
     showResult(data.prediction, data.confidence);
+    loadHistory();
   } catch (error) {
-    // Backend not reachable or returned an error — surface it clearly
     hideLoading();
     form.hidden = false;
     form.style.display = '';
     predictBtn.disabled = false;
     alert(
-      'Could not reach the prediction server. Please make sure the Flask backend is running.'
+      error.message.includes('Failed to fetch')
+        ? 'Could not reach the prediction server. Please make sure the Flask backend is running.'
+        : `Prediction failed: ${error.message}`
     );
     console.error('Prediction request failed:', error);
   }
 });
+
+// ---------- Prediction history ----------
+function formatHistoryDate(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? 'Unknown date'
+    : date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+function createHistoryRow(item) {
+  const row = document.createElement('tr');
+  const input = item.input_data || {};
+  const approved = item.prediction === 'Approved';
+  const confidence = typeof item.confidence === 'number'
+    ? `${item.confidence.toFixed(1)}%`
+    : '—';
+
+  const dateCell = document.createElement('td');
+  dateCell.textContent = formatHistoryDate(item.created_at);
+
+  const decisionCell = document.createElement('td');
+  const badge = document.createElement('span');
+  badge.className = `history-badge ${approved ? 'approved' : 'rejected'}`;
+  badge.textContent = item.prediction;
+  decisionCell.appendChild(badge);
+
+  const confidenceCell = document.createElement('td');
+  confidenceCell.textContent = confidence;
+
+  const detailsCell = document.createElement('td');
+  detailsCell.className = 'history-details';
+  detailsCell.textContent =
+    `Credit score ${input.credit_score ?? '—'} · ₹${Number(input.loan_amount || 0).toLocaleString()} loan · ${input.loan_purpose || 'Purpose not specified'}`;
+
+  row.append(dateCell, decisionCell, confidenceCell, detailsCell);
+  return row;
+}
+
+function setHistoryState(state) {
+  historyLoading.hidden = state !== 'loading';
+  historyEmpty.hidden = state !== 'empty';
+  historyError.hidden = state !== 'error';
+  historyTableWrap.hidden = state !== 'ready';
+}
+
+async function loadHistory() {
+  setHistoryState('loading');
+  historyError.textContent = '';
+
+  try {
+    const response = await fetch('/history?limit=50');
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || `Server responded with status ${response.status}`);
+
+    const items = Array.isArray(data.items) ? data.items : [];
+    historyTotal.textContent = items.length;
+    historyApproved.textContent = items.filter((item) => item.prediction === 'Approved').length;
+    historyRejected.textContent = items.filter((item) => item.prediction === 'Rejected').length;
+    historyTableBody.replaceChildren(...items.map(createHistoryRow));
+    setHistoryState(items.length ? 'ready' : 'empty');
+  } catch (error) {
+    historyError.textContent = `Could not load history: ${error.message}`;
+    setHistoryState('error');
+    console.error('History request failed:', error);
+  }
+}
+
+if (refreshHistoryBtn && clearHistoryBtn) {
+  refreshHistoryBtn.addEventListener('click', loadHistory);
+
+  clearHistoryBtn.addEventListener('click', async () => {
+    if (!confirm('Clear all saved prediction history?')) return;
+    clearHistoryBtn.disabled = true;
+    try {
+      const response = await fetch('/history', { method: 'DELETE' });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to clear history');
+      await loadHistory();
+    } catch (error) {
+      historyError.textContent = `Could not clear history: ${error.message}`;
+      setHistoryState('error');
+    } finally {
+      clearHistoryBtn.disabled = false;
+    }
+  });
+
+  loadHistory();
+}
 
 // ---------- Reset form ----------
 resetBtn.addEventListener('click', () => {
@@ -269,7 +369,8 @@ resetBtn.addEventListener('click', () => {
 });
 
 // ---------- Try another application ----------
-tryAgainBtn.addEventListener('click', () => {
+tryAgainBtn.addEventListener('click', (event) => {
+  event.preventDefault();
   resultCard.hidden = true;
   resultCard.style.display = 'none';
   loadingState.hidden = true;
@@ -281,6 +382,7 @@ tryAgainBtn.addEventListener('click', () => {
     document.getElementById(id).classList.remove('invalid');
     document.getElementById(`err-${id}`).textContent = '';
   });
+  form.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
 // ---------- Example Application Profiles ----------

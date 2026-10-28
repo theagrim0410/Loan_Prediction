@@ -32,6 +32,7 @@
         <a href="#home" class="nav-link active">Home</a>
         <a href="#about" class="nav-link">About</a>
         <a href="#prediction" class="nav-link">Prediction</a>
+        <a href="#history" class="nav-link">History</a>
         <a href="#contact" class="nav-link">Contact</a>
       </nav>
 
@@ -395,6 +396,57 @@
     </div>
   </section>
 
+  <!-- ===================== PREDICTION HISTORY ===================== -->
+  <section class="history-section" id="history">
+    <div class="section-container">
+      <div class="history-heading">
+        <div>
+          <span class="eyebrow">Your Activity</span>
+          <h2 class="section-heading">Prediction History</h2>
+          <p class="section-subtext">Review your recent loan assessments saved securely in the database.</p>
+        </div>
+        <div class="history-actions">
+          <button type="button" class="btn btn-secondary ripple" id="refreshHistoryBtn">Refresh</button>
+          <button type="button" class="btn btn-danger ripple" id="clearHistoryBtn">Clear History</button>
+        </div>
+      </div>
+
+      <div class="history-stats" aria-label="Prediction history summary">
+        <div class="history-stat-card">
+          <span class="history-stat-label">Total predictions</span>
+          <strong id="historyTotal">0</strong>
+        </div>
+        <div class="history-stat-card approved-stat">
+          <span class="history-stat-label">Approved</span>
+          <strong id="historyApproved">0</strong>
+        </div>
+        <div class="history-stat-card rejected-stat">
+          <span class="history-stat-label">Rejected</span>
+          <strong id="historyRejected">0</strong>
+        </div>
+      </div>
+
+      <div class="history-card">
+        <div class="history-empty" id="historyEmpty" hidden>
+          <div class="history-empty-icon">⌁</div>
+        </div>
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Decision</th>
+                <th scope="col">Confidence</th>
+                <th scope="col">Applicant details</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+        <a class="btn btn-primary ripple" href="#prediction">Make a Prediction</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================== FOOTER / CONTACT ===================== -->
   <footer class="footer" id="contact">
     <div class="footer-container">
@@ -419,6 +471,6 @@
     </div>
   </footer>
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='script.js', v='3') }}"></script>
 </body>
 </html>

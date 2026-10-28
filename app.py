@@ -4,6 +4,15 @@ import numpy as np
 import joblib
 import os
 import traceback
+from database.db import (
+    clear_prediction_history,
+    ensure_dataset_loaded,
+    get_dataset,
+    get_dataset_summary,
+    get_prediction_history,
+    init_db,
+    record_prediction,
+)
 
 try:
     from flask_cors import CORS
@@ -14,6 +23,7 @@ except ImportError:
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
+init_db()
 
 if HAS_CORS:
     cors_origins = os.environ.get("CORS_ORIGINS", "*")
@@ -163,7 +173,52 @@ def index():
 
 @app.route("/health", methods=["GET"])
 def health():
-    return jsonify({"status": "healthy", "model_loaded": model is not None}), 200
+    return jsonify({
+        "status": "healthy",
+        "model_loaded": model is not None,
+        "database": "connected",
+    }), 200
+
+
+@app.route("/history", methods=["GET"])
+def history():
+    """Return recent prediction history."""
+    try:
+        return jsonify({
+            "items": get_prediction_history(
+                request.args.get("limit", 50, type=int),
+                request.args.get("offset", 0, type=int),
+            )
+        })
+    except (TypeError, ValueError) as error:
+        return jsonify({"error": f"Invalid history pagination: {error}"}), 400
+
+
+@app.route("/history", methods=["DELETE"])
+def delete_history():
+    return jsonify({"deleted": clear_prediction_history()})
+
+
+@app.route("/dataset", methods=["GET"])
+def dataset():
+    """Return paginated training records from SQLite."""
+    try:
+        ensure_dataset_loaded()
+        return jsonify({
+            "items": get_dataset(
+                request.args.get("limit", 50, type=int),
+                request.args.get("offset", 0, type=int),
+                request.args.get("approval"),
+            ),
+            "summary": get_dataset_summary(),
+        })
+    except (TypeError, ValueError) as error:
+        return jsonify({"error": f"Invalid dataset pagination: {error}"}), 400
+
+
+@app.route("/dataset/summary", methods=["GET"])
+def dataset_summary():
+    return jsonify(get_dataset_summary())
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -235,6 +290,8 @@ def predict():
 
         if confidence is not None:
             response["confidence"] = confidence
+
+        response["history_id"] = record_prediction(data, result, confidence)
 
         return jsonify(response)
 
